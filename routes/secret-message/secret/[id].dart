@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'package:dart_frog/dart_frog.dart';
 import 'package:postgres/postgres.dart';
 
-import '../../db/db.dart';
-import '../../models/secret.dart';
+import '../../../db/db.dart';
+import '../../../models/secret.dart';
 
 Future<Response> onRequest(RequestContext context, String id) async {
   final request = context.request;
