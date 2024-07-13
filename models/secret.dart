@@ -1,8 +1,29 @@
-class Secret {
-  Secret(this.message);
+class SecretResponse {
+  SecretResponse(this.uuid, this.message);
 
-  factory Secret.fromJson(Map<String, dynamic> json) {
-    return Secret(
+  factory SecretResponse.fromJson(Map<String, dynamic> json) {
+    return SecretResponse(
+      json['uuid'] as String,
+      json['message'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'uuid': uuid,
+      'message': message,
+    };
+  }
+
+  String uuid;
+  String message;
+}
+
+class SecretRequest {
+  SecretRequest(this.message);
+
+  factory SecretRequest.fromJson(Map<String, dynamic> json) {
+    return SecretRequest(
       json['message'] as String,
     );
   }
@@ -13,5 +34,5 @@ class Secret {
     };
   }
 
-  final String message;
+  String message;
 }

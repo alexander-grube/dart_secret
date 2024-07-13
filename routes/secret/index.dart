@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:dart_frog/dart_frog.dart';
 import '../../db/db.dart';
+import '../../models/secret.dart';
 
 Future<Response> onRequest(RequestContext context) async {
   // Access the incoming request.
@@ -22,22 +23,26 @@ Future<Response> onRequest(RequestContext context) async {
 
 Future<Response> createSecret(Request request) async {
   final body = await request.body();
-  // create a timer to measure how long the json decoding takes
-  final sw = Stopwatch()..start();
-  final data = jsonDecode(body);
-  final message = data['message'] as String;
-  sw.stop();
-  print('Decoding JSON took ${sw.elapsedMicroseconds} microseconds');
+  final secretRequest =
+      SecretRequest.fromJson(jsonDecode(body) as Map<String, dynamic>);
 
   final conn = await pool();
-  await conn.execute(
-    "INSERT INTO secret_message (message) VALUES ('$message')",
+  final result = await conn.execute(
+    """
+      INSERT INTO 
+      secret_message (message) 
+      VALUES ('${secretRequest.message}') 
+      RETURNING id, message
+    """,
   );
   await conn.close();
+
+  final secretResponse =
+      SecretResponse(result[0][0]! as String, result[0][1]! as String);
 
   return Response(
     statusCode: 201,
     headers: {'Content-Type': 'application/json'},
-    body: jsonEncode({'message': message}),
+    body: jsonEncode(secretResponse),
   );
 }
