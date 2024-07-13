@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:dart_frog/dart_frog.dart';
+import 'package:postgres/postgres.dart';
 
 import '../../db/db.dart';
+import '../../models/secret.dart';
 
 Future<Response> onRequest(RequestContext context, String id) async {
   // Access the incoming request.
@@ -23,22 +25,30 @@ Future<Response> onRequest(RequestContext context, String id) async {
 
 Future<Response> getSecret(String uuid) async {
   final conn = await pool();
-  dynamic result;
+  Result result;
   try {
     result = await conn.execute(
       "SELECT message from secret_message where id = '$uuid' limit 1",
     );
+    if (result.isEmpty) {
+      throw Exception('Secret not found');
+    }
+    await conn.execute(
+      "DELETE from secret_message where id = '$uuid'",
+    );
   } catch (e) {
     return Response(
       statusCode: 404,
-      body: 'Secret not found',
+      body: e.toString(),
     );
   } finally {
     await conn.close();
   }
 
+  final secret = Secret(result[0][0]! as String);
+
   return Response(
     headers: {'Content-Type': 'application/json'},
-    body: jsonEncode(result),
+    body: jsonEncode(secret),
   );
 }

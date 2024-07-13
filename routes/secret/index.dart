@@ -22,8 +22,12 @@ Future<Response> onRequest(RequestContext context) async {
 
 Future<Response> createSecret(Request request) async {
   final body = await request.body();
+  // create a timer to measure how long the json decoding takes
+  final sw = Stopwatch()..start();
   final data = jsonDecode(body);
   final message = data['message'] as String;
+  sw.stop();
+  print('Decoding JSON took ${sw.elapsedMicroseconds} microseconds');
 
   final conn = await pool();
   await conn.execute(
