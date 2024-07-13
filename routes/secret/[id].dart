@@ -6,10 +6,8 @@ import '../../db/db.dart';
 import '../../models/secret.dart';
 
 Future<Response> onRequest(RequestContext context, String id) async {
-  // Access the incoming request.
   final request = context.request;
 
-  // Access the HTTP method.
   final method = request.method.value;
 
   switch (method) {
